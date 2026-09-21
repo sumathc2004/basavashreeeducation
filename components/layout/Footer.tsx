@@ -1,15 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { footerLinks, socialLinks } from "@/lib/data/nav";
+import { footerLinks } from "@/lib/data/nav";
 import { CONTACT_ADDRESS, CONTACT_EMAIL, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_TEL, getWhatsAppLink } from "@/lib/contact";
-import { WhatsAppIcon } from "@/components/icons";
-
-const socialGlyph: Record<string, string> = {
-  facebook: "f",
-  instagram: "◎",
-  linkedin: "in",
-  youtube: "▶",
-};
+import { MailIcon, MapPinIcon, PhoneIcon, WhatsAppIcon } from "@/components/icons";
 
 export function Footer() {
   return (
@@ -31,20 +24,6 @@ export function Footer() {
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-sky-200/80">
             A modern Pan-India learning platform making quality, practical education accessible to every student and career learner.
           </p>
-          <div className="mt-5 flex gap-3">
-            {socialLinks.map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                aria-label={social.label}
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-sm font-semibold text-white transition-colors hover:bg-sky-500"
-              >
-                {socialGlyph[social.icon]}
-              </a>
-            ))}
-          </div>
         </div>
 
         <div>
@@ -74,25 +53,30 @@ export function Footer() {
         </div>
 
         <div>
-          <h4 className="text-sm font-semibold uppercase tracking-wide text-sky-400">Get in Touch</h4>
-          <ul className="mt-4 space-y-3 text-sm text-sky-200/80">
-            <li>{CONTACT_ADDRESS}</li>
-            <li>
+          <h4 className="text-sm font-semibold uppercase tracking-wide text-sky-400">Contact</h4>
+          <ul className="mt-4 space-y-4 text-sm text-sky-200/80">
+            <li className="flex items-start gap-3">
+              <PhoneIcon className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
+              <a href={`tel:${CONTACT_PHONE_TEL}`} className="hover:text-white">
+                {CONTACT_PHONE_DISPLAY}
+              </a>
+            </li>
+            <li className="flex items-start gap-3">
+              <MailIcon className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
               <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">
                 {CONTACT_EMAIL}
               </a>
             </li>
-            <li>
-              <a href={`tel:${CONTACT_PHONE_TEL}`} className="hover:text-white">
-                {CONTACT_PHONE_DISPLAY}
-              </a>
+            <li className="flex items-start gap-3">
+              <MapPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
+              <span>{CONTACT_ADDRESS}</span>
             </li>
           </ul>
           <a
             href={getWhatsAppLink()}
             target="_blank"
             rel="noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1fb857]"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#1fb857]"
           >
             <WhatsAppIcon className="h-4 w-4" />
             Chat on WhatsApp

@@ -18,10 +18,3 @@ export const footerLinks = {
     { href: "/legal/refund-policy", label: "Refund Policy" },
   ],
 };
-
-export const socialLinks = [
-  { href: "https://facebook.com", label: "Facebook", icon: "facebook" },
-  { href: "https://instagram.com", label: "Instagram", icon: "instagram" },
-  { href: "https://linkedin.com", label: "LinkedIn", icon: "linkedin" },
-  { href: "https://youtube.com", label: "YouTube", icon: "youtube" },
-] as const;
