@@ -132,3 +132,8 @@ export function createUser(user: User) {
 export function getUserByEmail(email: string) {
   return readDb().users.find((user) => user.email.toLowerCase() === email.toLowerCase()) ?? null;
 }
+
+export function getUserByPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "").slice(-10);
+  return readDb().users.find((user) => user.phone.replace(/\D/g, "").slice(-10) === digits) ?? null;
+}
