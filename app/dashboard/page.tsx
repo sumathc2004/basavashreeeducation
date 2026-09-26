@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { logout, useSession, type Session } from "@/lib/auth-client";
+import { useSession, type Session } from "@/lib/auth-client";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { CertificateIcon, ClockIcon, PlayIcon, UserIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
@@ -61,27 +61,17 @@ function DashboardContent() {
     );
   }
 
-  async function handleLogout() {
-    await logout();
-    router.push("/");
-  }
-
   return (
     <section className="section-tint py-14 lg:py-16">
       <Container>
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-royal-600 text-lg font-bold text-white">
-              {session.name.charAt(0).toUpperCase()}
-            </span>
-            <div>
-              <h1 className="text-xl font-bold text-navy-950">Welcome, {session.name}</h1>
-              <p className="text-sm text-muted">{session.email}</p>
-            </div>
+        <div className="flex items-center gap-4">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-royal-600 text-lg font-bold text-white">
+            {session.name.charAt(0).toUpperCase()}
+          </span>
+          <div>
+            <h1 className="text-xl font-bold text-navy-950">Welcome, {session.name}</h1>
+            <p className="text-sm text-muted">{session.email}</p>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            Log Out
-          </Button>
         </div>
 
         <div className="mt-8 flex flex-wrap gap-2 border-b border-line pb-1">

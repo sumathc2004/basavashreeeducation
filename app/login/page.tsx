@@ -60,10 +60,9 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="section-tint py-10 lg:py-16">
-      <Container className="max-w-5xl">
-        <div className="grid overflow-hidden rounded-3xl bg-white shadow-xl shadow-navy-900/10 ring-1 ring-line lg:grid-cols-2">
-          <div className="relative hidden overflow-hidden brand-gradient p-10 text-white lg:flex lg:flex-col lg:justify-between">
+    <section>
+        <div className="grid min-h-[calc(100vh-4.5rem)] bg-white lg:grid-cols-2">
+          <div className="relative hidden overflow-hidden brand-gradient px-12 py-14 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
             <div
               className="pointer-events-none absolute inset-0 opacity-25"
               style={{
@@ -104,7 +103,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="p-8 sm:p-12">
+          <div className="flex items-center justify-center px-6 py-14 sm:px-12">
+          <div className="w-full max-w-md">
             <Image src="/logo.jpeg" alt="Basavashree Education" width={52} height={52} className="h-13 w-13 rounded-xl object-contain lg:hidden" />
             <h1 className="mt-4 text-2xl font-bold text-navy-950 lg:mt-0">Log in to your account</h1>
             <p className="mt-1.5 text-sm text-muted">Use your registered phone number or email.</p>
@@ -168,8 +168,8 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+          </div>
         </div>
-      </Container>
     </section>
   );
 }
