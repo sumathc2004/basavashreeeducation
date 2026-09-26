@@ -5,30 +5,44 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { getSession, saveSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ name: "", email: "" });
-  const [checkingSession, setCheckingSession] = useState(true);
+  const { session, refresh } = useSession();
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     // Already logged in — no reason to show the login form again.
-    if (getSession()) {
+    if (session) {
       router.replace("/dashboard");
-      return;
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- resolving the client-only session post-hydration is intentional
-    setCheckingSession(false);
-  }, [router]);
+  }, [session, router]);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    saveSession({ name: form.name || form.email.split("@")[0], email: form.email });
-    router.push("/dashboard");
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Invalid email or password.");
+      await refresh();
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setSubmitting(false);
+    }
   }
 
-  if (checkingSession) {
+  if (session === undefined || session) {
     return (
       <Container className="flex min-h-[calc(100vh-10rem)] items-center justify-center">
         <p className="text-sm text-muted">Loading...</p>
@@ -44,19 +58,6 @@ export default function LoginPage() {
           <p className="mt-1 text-sm text-muted">Log in to access your dashboard and continue learning.</p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <label htmlFor="name" className="text-sm font-medium text-navy-800">
-                Name
-              </label>
-              <input
-                id="name"
-                required
-                value={form.name}
-                onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
-                className="mt-2 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-royal-500 focus:ring-2 focus:ring-royal-500/20"
-                placeholder="Your name"
-              />
-            </div>
             <div>
               <label htmlFor="email" className="text-sm font-medium text-navy-800">
                 Email
@@ -79,13 +80,17 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
+                value={form.password}
+                onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
                 className="mt-2 w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:border-royal-500 focus:ring-2 focus:ring-royal-500/20"
                 placeholder="••••••••"
               />
             </div>
 
-            <Button type="submit" size="lg" className="w-full">
-              Log In
+            {error ? <p className="text-sm font-medium text-red-600">{error}</p> : null}
+
+            <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? "Logging in..." : "Log In"}
             </Button>
           </form>
 

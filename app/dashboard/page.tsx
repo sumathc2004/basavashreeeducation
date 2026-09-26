@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { getSession, clearSession, type Session } from "@/lib/auth-client";
+import { logout, useSession, type Session } from "@/lib/auth-client";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { CertificateIcon, ClockIcon, PlayIcon, UserIcon } from "@/components/icons";
 import { cn } from "@/lib/cn";
@@ -34,28 +34,24 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = tabs.find((tab) => tab === searchParams.get("tab")) ?? "My Courses";
-  const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const { session } = useSession();
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   useEffect(() => {
-    // Read after mount (not as a lazy initial state) so server and client
-    // markup match on hydration — localStorage isn't available on the server.
-    const current = getSession();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- resolving the client-only session post-hydration is intentional
-    setSession(current);
-    if (!current) {
+    if (session === undefined) return;
+    if (session === null) {
       router.replace("/login");
       return;
     }
-    fetch(`/api/enrollments?email=${encodeURIComponent(current.email)}`)
+    fetch(`/api/enrollments?email=${encodeURIComponent(session.email)}`)
       .then((res) => res.json())
       .then(setEnrollments);
-    fetch(`/api/payment/history?email=${encodeURIComponent(current.email)}`)
+    fetch(`/api/payment/history?email=${encodeURIComponent(session.email)}`)
       .then((res) => res.json())
       .then(setOrders);
-  }, [router]);
+  }, [session, router]);
 
   if (session === undefined || session === null) {
     return (
@@ -65,8 +61,8 @@ function DashboardContent() {
     );
   }
 
-  function handleLogout() {
-    clearSession();
+  async function handleLogout() {
+    await logout();
     router.push("/");
   }
 

@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { navLinks } from "@/lib/data/nav";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-import { clearSession, getSession, type Session } from "@/lib/auth-client";
+import { logout, useSession } from "@/lib/auth-client";
 import { ChevronDownIcon, LayoutDashboardIcon, LogOutIcon, UserIcon } from "@/components/icons";
 
 export function Navbar() {
@@ -15,16 +15,14 @@ export function Navbar() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const { session, refresh } = useSession();
   const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Read after mount (not as a lazy initial state) so server and client
-    // markup match on hydration — localStorage isn't available on the server.
-    // Re-run on route change too, so the navbar picks up a fresh login/logout.
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- resolving the client-only session post-hydration is intentional
-    setSession(getSession());
-  }, [pathname]);
+    // Re-check on every route change, so the navbar reflects a fresh login/logout
+    // that just happened on another page.
+    refresh();
+  }, [pathname, refresh]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -36,9 +34,8 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function handleLogout() {
-    clearSession();
-    setSession(null);
+  async function handleLogout() {
+    await logout();
     setAccountOpen(false);
     setOpen(false);
     router.push("/");

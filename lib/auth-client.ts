@@ -1,37 +1,34 @@
 "use client";
 
-/**
- * Minimal client-side session for demo purposes (stores name/email in
- * localStorage). Replace with real authentication (NextAuth, a backend
- * session, etc.) before production — this only exists so the dashboard and
- * checkout flows have something to key off of.
- */
-
-const STORAGE_KEY = "basavashree_session";
+import { useCallback, useEffect, useState } from "react";
 
 export type Session = { name: string; email: string; phone?: string };
 
-export function saveSession(session: Session) {
-  try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-  } catch {
-    // localStorage unavailable — ignore
-  }
+/** Reads/refreshes the logged-in student's session from the server (cookie-based). */
+export function useSession() {
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+
+  const refresh = useCallback(async () => {
+    try {
+      const response = await fetch("/api/auth/session");
+      const data = await response.json();
+      setSession(data.user ?? null);
+    } catch {
+      setSession(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetching the session from the server on mount, then syncing state, is
+    // exactly what an effect is for — this isn't a synchronous derived-state
+    // update.
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch-then-setState, not a synchronous derivation
+    refresh();
+  }, [refresh]);
+
+  return { session, refresh };
 }
 
-export function getSession(): Session | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Session) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function clearSession() {
-  try {
-    window.localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // ignore
-  }
+export async function logout() {
+  await fetch("/api/auth/logout", { method: "POST" });
 }

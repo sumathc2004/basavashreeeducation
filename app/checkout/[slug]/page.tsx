@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getCourseBySlug } from "@/lib/data/courses";
-import { getSession } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 
@@ -21,20 +21,18 @@ export default function CheckoutPage() {
   const router = useRouter();
   const course = getCourseBySlug(params.slug);
 
+  const { session } = useSession();
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [order, setOrder] = useState<OrderResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Read after mount (not as a lazy initial state) so server and client
-    // markup match on hydration — localStorage isn't available on the server.
-    const session = getSession();
     if (session) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- prefilling from client-only storage post-hydration is intentional
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- prefilling from the async session fetch once it resolves is intentional
       setForm({ name: session.name ?? "", email: session.email ?? "", phone: session.phone ?? "" });
     }
-  }, []);
+  }, [session]);
 
   if (!course) {
     return (
