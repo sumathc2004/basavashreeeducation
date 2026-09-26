@@ -1,9 +1,10 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { courses, getCourseBySlug } from "@/lib/data/courses";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { CourseCard } from "@/components/ui/CourseCard";
-import { CheckIcon, ClockIcon, StarIcon, UserIcon } from "@/components/icons";
+import { CheckIcon, ClockIcon, ShieldIcon, StarIcon, UserIcon } from "@/components/icons";
 
 export function generateStaticParams() {
   return courses.map((course) => ({ slug: course.slug }));
@@ -116,6 +117,13 @@ export default async function CourseDetailPage({ params }: PageProps<"/courses/[
             <Button href={`/checkout/${course.slug}`} size="lg" className="mt-5 w-full">
               Enroll Now
             </Button>
+            <p className="mt-3 text-center text-xs text-muted">
+              <ShieldIcon className="mr-1 inline h-3.5 w-3.5 text-royal-600" />
+              7-Day{" "}
+              <Link href="/legal/refund-policy" className="font-medium text-royal-600 hover:underline">
+                Cancellation & Refund Policy
+              </Link>
+            </p>
 
             <ul className="mt-6 space-y-3 text-sm text-navy-800">
               <li className="flex items-center justify-between border-b border-line pb-3">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getCourseBySlug } from "@/lib/data/courses";
 import { getSession } from "@/lib/auth-client";
@@ -170,6 +171,13 @@ export default function CheckoutPage() {
                   Pay Now — ₹{order.amount.toLocaleString("en-IN")}
                 </Button>
                 <p className="text-center text-xs text-muted">You will be redirected to the Namma API secure payment gateway.</p>
+                <p className="text-center text-xs text-muted">
+                  By proceeding, you agree to our{" "}
+                  <Link href="/legal/refund-policy" className="font-medium text-royal-600 hover:underline">
+                    Cancellation & Refund Policy
+                  </Link>
+                  .
+                </p>
               </div>
             )}
           </div>
