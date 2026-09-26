@@ -1,20 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
-import { saveSession } from "@/lib/auth-client";
+import { getSession, saveSession } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "" });
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    // Already logged in — no reason to show the login form again.
+    if (getSession()) {
+      router.replace("/dashboard");
+      return;
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resolving the client-only session post-hydration is intentional
+    setCheckingSession(false);
+  }, [router]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     saveSession({ name: form.name || form.email.split("@")[0], email: form.email });
     router.push("/dashboard");
+  }
+
+  if (checkingSession) {
+    return (
+      <Container className="flex min-h-[calc(100vh-10rem)] items-center justify-center">
+        <p className="text-sm text-muted">Loading...</p>
+      </Container>
+    );
   }
 
   return (

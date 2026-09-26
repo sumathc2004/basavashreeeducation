@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { getSession, clearSession, type Session } from "@/lib/auth-client";
@@ -30,12 +30,14 @@ type Order = {
 const tabs = ["My Courses", "Certificates", "Payment History", "Profile"] as const;
 type Tab = (typeof tabs)[number];
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = tabs.find((tab) => tab === searchParams.get("tab")) ?? "My Courses";
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<Tab>("My Courses");
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   useEffect(() => {
     // Read after mount (not as a lazy initial state) so server and client
@@ -110,6 +112,14 @@ export default function DashboardPage() {
         </div>
       </Container>
     </section>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardContent />
+    </Suspense>
   );
 }
 
