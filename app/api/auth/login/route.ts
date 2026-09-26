@@ -18,7 +18,7 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.json({ user: { name: user.name, email: user.email, phone: user.phone } });
-  response.cookies.set(USER_SESSION_COOKIE, createSessionValue(user.email), {
+  response.cookies.set(USER_SESSION_COOKIE, createSessionValue({ name: user.name, email: user.email, phone: user.phone }), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
