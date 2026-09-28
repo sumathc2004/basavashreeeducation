@@ -107,7 +107,7 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <Image src="/logo.jpeg" alt="Basavashree Education" width={52} height={52} className="h-13 w-13 rounded-xl object-contain lg:hidden" />
             <h1 className="mt-4 text-2xl font-bold text-navy-950 lg:mt-0">Log in to your account</h1>
-            <p className="mt-1.5 text-sm text-muted">Use your registered phone number or email.</p>
+            <p className="mt-1.5 text-sm text-muted">Enter your phone number or email to continue.</p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div>

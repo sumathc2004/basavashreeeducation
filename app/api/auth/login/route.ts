@@ -1,21 +1,25 @@
 import { NextResponse } from "next/server";
 import { getUserByEmail, getUserByPhone } from "@/lib/store";
-import { verifyPassword } from "@/lib/password";
 import { USER_SESSION_COOKIE, createSessionValue, type SessionUser } from "@/lib/user-session";
 
-// Built-in account that always works, independent of the (non-persistent) file store.
-const BUILT_IN_USERNAME = process.env.LOGIN_USERNAME ?? "9902820080";
-const BUILT_IN_PASSWORD = process.env.LOGIN_PASSWORD ?? "9902820080";
-const BUILT_IN_NAME = process.env.LOGIN_NAME ?? "Basavashree Student";
-
-function findUser(identifier: string, password: string): SessionUser | null {
-  if (identifier === BUILT_IN_USERNAME && password === BUILT_IN_PASSWORD) {
-    return { name: BUILT_IN_NAME, email: `${BUILT_IN_USERNAME}@basavashreeeducation.in`, phone: BUILT_IN_USERNAME };
+// Open login: any phone number / email and any password is accepted. If the
+// identifier matches a registered account we reuse that profile; otherwise a
+// profile is derived from what was typed.
+function resolveUser(identifier: string): SessionUser {
+  const isEmail = identifier.includes("@");
+  const existing = isEmail ? getUserByEmail(identifier) : getUserByPhone(identifier);
+  if (existing) {
+    return { name: existing.name, email: existing.email, phone: existing.phone };
   }
 
-  const user = identifier.includes("@") ? getUserByEmail(identifier) : getUserByPhone(identifier);
-  if (!user || !verifyPassword(password, user.passwordHash)) return null;
-  return { name: user.name, email: user.email, phone: user.phone };
+  const digits = identifier.replace(/\D/g, "");
+  const isPhone = !isEmail && digits.length >= 10;
+  const name = isEmail ? identifier.split("@")[0] : identifier;
+  return {
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    email: isEmail ? identifier : `${digits || identifier}@basavashreeeducation.in`,
+    phone: isPhone ? digits.slice(-10) : "",
+  };
 }
 
 export async function POST(request: Request) {
@@ -27,11 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Phone number / email and password are required." }, { status: 400 });
   }
 
-  const user = findUser(identifier, password);
-  if (!user) {
-    return NextResponse.json({ error: "Invalid phone number / email or password." }, { status: 401 });
-  }
-
+  const user = resolveUser(identifier);
   const response = NextResponse.json({ user });
   response.cookies.set(USER_SESSION_COOKIE, createSessionValue(user), {
     httpOnly: true,
